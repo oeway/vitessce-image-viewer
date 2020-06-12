@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Grid from '@material-ui/core/Grid';
 import AddIcon from '@material-ui/icons/Add';
+import * as imjoyRPC from 'imjoy-rpc';
 
 import { SideBySideViewer, PictureInPictureViewer } from '../../src';
 import sources from './source-info';
@@ -31,6 +32,8 @@ const initialChannels = {
   ids: [],
   isOn: []
 };
+
+
 
 function App() {
   const [channels, dispatch] = useReducer(channelsReducer, initialChannels);
@@ -61,6 +64,23 @@ function App() {
       setIsLoading(false);
     }
     changeLoader();
+
+    async function setupImJoyAPI(){
+      const api = await imjoyRPC.setupRPC({name: 'vitessce-image-viewer'});
+      function setup(){
+          api.log('vitessce-image-viewer initialized.')
+      }
+      async function loadSource(type, sourceInfo){
+        if(sourceInfo) sources[type] = sourceInfo;
+        setSourceName(type)
+      }
+      api.export({ setup, loadSource });
+    }
+    // enable imjoy api when loaded as an iframe
+    if (window.self !== window.top) {
+      setupImJoyAPI();
+    }
+
   }, [sourceName]);
 
   /*
