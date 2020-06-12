@@ -184,6 +184,7 @@ function App() {
           <Grid container justify="space-between">
             <Grid item xs={6}>
               <SourceSelect
+                sources={sources}
                 value={sourceName}
                 handleChange={setSourceName}
                 disabled={isLoading}

@@ -3,9 +3,9 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 
-import sources from '../source-info';
+function SourceSelect({ sources, value, handleChange, disabled }) {
 
-const SOURCE_OPTIONS = Object.entries(sources)
+  const sourceOptions = Object.entries(sources)
   // eslint-disable-next-line no-unused-vars
   .filter(([key, info]) =>
     // only use isPublic on the deployment
@@ -14,7 +14,6 @@ const SOURCE_OPTIONS = Object.entries(sources)
   )
   .map(([key, info]) => ({ name: key, description: info.description }));
 
-function SourceSelect({ value, handleChange, disabled }) {
   return (
     <FormControl fullWidth>
       <InputLabel htmlFor="data-source-select">Data Source</InputLabel>
@@ -28,7 +27,7 @@ function SourceSelect({ value, handleChange, disabled }) {
         }}
         disabled={disabled}
       >
-        {SOURCE_OPTIONS.map(({ name, description }) => {
+        {sourceOptions.map(({ name, description }) => {
           return (
             <option key={name} value={name}>
               {description}
