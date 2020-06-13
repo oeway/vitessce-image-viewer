@@ -16,18 +16,28 @@ export async function createZarrLoader({
 }) {
   let data;
   if (isPyramid) {
-    const metadataUrl = `${url}${url.slice(-1) === '/' ? '' : '/'}.zmetadata`;
-    const response = await fetch(metadataUrl);
-    const { metadata } = await response.json();
+    let metadata;
+    if(typeof url === 'string'){
+      const metadataUrl = `${url}${url.slice(-1) === '/' ? '' : '/'}.zmetadata`;
+      const response = await fetch(metadataUrl);
+      const md = await response.json();
+      metadata = md.metadata;
+    }
+    else{
+      const meta = await url.getItem('.zmetadata')
+      const enc = new TextDecoder("utf-8");
+      const md = JSON.parse(enc.decode(new Uint8Array(meta)));
+      metadata = md.metadata;
+    }
     const paths = Object.keys(metadata)
       .filter(metaKey => metaKey.includes('.zarray'))
       .map(arrMetaKeys => arrMetaKeys.slice(0, -7));
-    data = Promise.all(paths.map(path => openArray({ store: url, path })));
+    data = await Promise.all(paths.map(path => openArray({ store: url, path })));
   } else {
-    data = openArray({ store: url });
+    data = await openArray({ store: url });
   }
   return new ZarrLoader({
-    data: await data,
+    data,
     dimensions,
     scale,
     translate,

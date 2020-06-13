@@ -32,8 +32,19 @@ class OMEZarrReader {
    * @returns {OMEZarrReader} OME reader for zarr store
    */
   static async fromUrl(url) {
-    const zarrPath = url.endsWith('/') ? url : `${url}/`;
-    const rootAttrs = await getJson(zarrPath, '.zattrs');
+    let zarrPath
+    let rootAttrs;
+    if(typeof url === 'string'){
+      zarrPath = url.endsWith('/') ? url : `${url}/`;
+      rootAttrs = await getJson(zarrPath, '.zattrs');
+    }
+    else{
+      zarrPath = url;
+      const meta = await url.getItem('.zattrs')
+      const enc = new TextDecoder("utf-8");
+      rootAttrs = JSON.parse(enc.decode(new Uint8Array(meta)));
+    }
+
     return new OMEZarrReader(zarrPath, rootAttrs);
   }
 
