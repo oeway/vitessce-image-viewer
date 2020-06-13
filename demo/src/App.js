@@ -34,6 +34,7 @@ const initialChannels = {
 };
 
 
+let imjoyInitialized = false;
 
 function App() {
   const [channels, dispatch] = useReducer(channelsReducer, initialChannels);
@@ -52,8 +53,30 @@ function App() {
   const [pixelValues, setPixelValues] = useState(
     new Array(sources[sourceName].selections.length).fill(FILL_PIXEL_VALUE)
   );
+
+  async function setupImJoyAPI(){
+    const api = await imjoyRPC.setupRPC({name: 'vitessce-image-viewer'});
+    function setup(){
+        api.log('vitessce-image-viewer initialized.')
+    }
+    async function loadSource(type, sourceInfo){
+      await api.showMessage(`loading data: ${(sourceInfo&&sourceInfo.description)||type}`)
+      if(sourceInfo) sources[type] = sourceInfo;
+      setSourceName(type)
+    }
+    api.export({ setup, loadSource });
+  }
+
   useEffect(() => {
     async function changeLoader() {
+      // enable imjoy api when loaded as an iframe
+      if (window.self !== window.top) {
+        if(!imjoyInitialized){
+          setupImJoyAPI();
+          imjoyInitialized = true;
+          return
+        }
+      }
       setIsLoading(true);
       const sourceInfo = sources[sourceName];
       const { selections, dimensions } = sourceInfo;
@@ -64,24 +87,8 @@ function App() {
       setIsLoading(false);
     }
     changeLoader();
-
-    async function setupImJoyAPI(){
-      const api = await imjoyRPC.setupRPC({name: 'vitessce-image-viewer'});
-      function setup(){
-          api.log('vitessce-image-viewer initialized.')
-      }
-      async function loadSource(type, sourceInfo){
-        if(sourceInfo) sources[type] = sourceInfo;
-        setSourceName(type)
-      }
-      api.export({ setup, loadSource });
-    }
-    // enable imjoy api when loaded as an iframe
-    if (window.self !== window.top) {
-      setupImJoyAPI();
-    }
-
   }, [sourceName]);
+
 
   /*
    * Handles updating state for each channel controller.
