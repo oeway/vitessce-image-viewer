@@ -5,6 +5,50 @@ over the hood and WebGL under the hood. To learn more about the "theory" behind
 this, look at [this](https://github.com/hubmapconsortium/vitessce-image-viewer/blob/master/docs/IMAGE_RENDERING.md). To really make this sing, you need to
 use an http2 server in production (s3 is passable, though).
 
+### Use the viewer as an ImJoy plugin
+
+You can install it into ImJoy: https://imjoy.io/#/app?plugin=https://oeway.github.io/vitessce-image-viewer/
+
+
+There is also a Jupyter notebook extension for ImJoy (`pip install imjoy-jupyter-extension`), you can directly run the viewer in Jupyter notebooks, try it here: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gist/oeway/ebedc17c9ab1f6aa5eee181679d85b5f/master?filepath=vitessce-image-viewer-imjoy-demo.ipynb)
+
+![](docs/Screenshot-imjoy-jupyter.png)
+
+```python
+from imjoy import api
+
+covidTiffInfo = {
+    "url": 'https://vitessce-demo-data.storage.googleapis.com/test-data/12448_G1HR_Mesh003.ome.tif',
+    "dimensions": [
+    {
+      "field": 'channel',
+      "type": 'nominal',
+      "values": [0]
+    },
+    { "field": 'y', "type": 'quantitative', "values": None },
+    { "field": 'x', "type": 'quantitative', "values": None }
+  ],
+  "selections": [{ "channel": 0 }],
+  "isPublic": True,
+  "isPyramid": True,
+  "description": 'Covid-19 Primary Gut Epithelial Stem Cells (OME-TIFF)',
+  "initialViewState": {
+    "zoom": -7,
+    "target": [50000, 50000]
+  }
+}
+    
+class ImJoyPlugin():
+    async def setup(self):
+        pass
+
+    async def run(self, ctx):
+        viewer = await api.createWindow(type="vitessce-image-viewer", src="https://oeway.github.io/vitessce-image-viewer/")
+        await viewer.loadSource('covid tiff', covidTiffInfo)
+
+api.export(ImJoyPlugin())
+```
+
 ### Build
 
 To build the component alone via `webpack` use `npm run-script build-component`.
