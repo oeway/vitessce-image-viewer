@@ -10,7 +10,7 @@ import { OrthographicView } from '@deck.gl/core';
  * @param {number} args.y Y (top-left) location on the screen for the current view
  */
 export default class VivView {
-  constructor({ initialViewState, x = 0, y = 0 }) {
+  constructor({ initialViewState, x = 0, y = 0, controller = true }) {
     const { height, width, id } = initialViewState;
     this.width = width;
     this.height = height;
@@ -18,6 +18,7 @@ export default class VivView {
     this.id = id;
     this.x = x;
     this.y = y;
+    this.controller = controller;
   }
 
   /**
@@ -25,10 +26,10 @@ export default class VivView {
    * @returns {View} The DeckGL View for this class.
    */
   getDeckGlView() {
-    const { height, width, id, x, y } = this;
+    const { height, width, id, x, y, controller } = this;
     return new OrthographicView({
       id,
-      controller: true,
+      controller,
       height,
       width,
       x,

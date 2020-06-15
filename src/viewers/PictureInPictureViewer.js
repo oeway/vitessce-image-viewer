@@ -28,10 +28,12 @@ const PictureInPictureViewer = props => {
     overview,
     overviewOn,
     loaderSelection,
-    hoverHooks
+    hoverHooks,
+    viewStateHook,
+    controller,
   } = props;
   const detailViewState = { ...initialViewState, id: 'detail' };
-  const detailView = new DetailView({ initialViewState: detailViewState });
+  const detailView = new DetailView({ initialViewState: detailViewState, controller });
   const layerConfig = {
     loader,
     sliderValues,
@@ -56,7 +58,7 @@ const PictureInPictureViewer = props => {
   }
   if (!loader) return null;
   return (
-    <VivViewer layerProps={layerProps} views={views} hoverHooks={hoverHooks} />
+    <VivViewer viewStateHook={viewStateHook} layerProps={layerProps} views={views} hoverHooks={hoverHooks} />
   );
 };
 

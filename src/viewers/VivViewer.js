@@ -27,15 +27,22 @@ export default class VivViewer extends PureComponent {
       viewStates: {}
     };
     const { viewStates } = this.state;
-    const { views } = this.props;
+    const { views, viewStateHook } = this.props;
     views.forEach(view => {
       viewStates[view.id] = view.filterViewState({
         viewState: view.initialViewState
       });
     });
     this._onViewStateChange = this._onViewStateChange.bind(this);
+    this._viewStateHook = viewStateHook;
     this.layerFilter = this.layerFilter.bind(this);
     this.onHover = this.onHover.bind(this);
+    this.deck = React.createRef();
+    const { hoverHooks } = this.props;
+    const { initVivView } = hoverHooks;
+    if (initVivView) {
+      initVivView({deck: this.deck});
+    }
   }
 
   /**
@@ -68,6 +75,9 @@ export default class VivViewer extends PureComponent {
           currentViewState
         });
       });
+      if(this._viewStateHook){
+        this._viewStateHook(viewId, viewState, oldViewState)
+      }
       return { viewStates };
     });
   }
@@ -195,6 +205,7 @@ export default class VivViewer extends PureComponent {
     }
     return !isSafari() ? (
       <DeckGL
+        ref={this.deck}
         glOptions={{ webgl2: true }}
         layerFilter={this.layerFilter}
         layers={this._renderLayers()}
